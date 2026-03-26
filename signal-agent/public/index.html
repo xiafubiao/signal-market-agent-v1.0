@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signal Market - AI Trading Agent</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background: #F5F5F0;
+      min-height: 100vh;
+      color: #4A4A4A;
+      line-height: 1.6;
+      letter-spacing: -0.01em;
+    }
+
+    .banner-section {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      background: #0a0e1a;
+      overflow: hidden;
+    }
+
+    .banner-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+      padding: 40px;
+      background: rgba(10, 14, 26, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 60px rgba(139, 126, 110, 0.3);
+    }
+
+    .banner-title {
+      font-size: 64px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 0%, #c9b8a8 50%, #8b7e6e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+      animation: titleGlow 3s ease-in-out infinite;
+      text-shadow: 0 0 40px rgba(201, 184, 168, 0.3);
+    }
+
+    @keyframes titleGlow {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.3); }
+    }
+
+    .banner-subtitle {
+      font-size: 22px;
+      color: #c9b8a8;
+      margin-bottom: 20px;
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .banner-tagline {
+      font-size: 14px;
+      color: #8b7e6e;
+      max-width: 500px;
+      line-height: 1.8;
+      margin: 0 auto;
+      font-weight: 300;
+      letter-spacing: 0.03em;
+    }
+
+    .banner-formula {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: rgba(201, 184, 168, 0.7);
+      margin-top: 24px;
+      padding: 12px 24px;
+      background: rgba(139, 126, 110, 0.15);
+      border-radius: 8px;
+      border: 1px solid rgba(139, 126, 110, 0.3);
+      letter-spacing: 0.05em;
+    }
+
+    .banner-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+      padding: 50px 60px;
+      background: rgba(10, 14, 26, 0.75);
+      backdrop-filter: blur(15px) saturate(180%);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 80px rgba(139, 126, 110, 0.4), inset 0 0 60px rgba(139, 126, 110, 0.05);
+    }
+
+    .main-wrapper {
+      padding: 40px 20px;
+      min-height: calc(100vh - 400px);
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 32px;
+    }
+    
+    .card {
+      background: #FFFFFF;
+      border-radius: 4px;
+      padding: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid #E8E8E8;
+    }
+    
+    h1 {
+      color: #3D3D3D;
+      margin-bottom: 24px;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+    
+    h2 {
+      color: #3D3D3D;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 550px;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      background: #FAFAF9;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      border: 1px solid #E8E8E8;
+    }
+    
+    .message {
+      margin-bottom: 16px;
+      padding: 14px 18px;
+      border-radius: 4px;
+      max-width: 85%;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    
+    .message.user {
+      background: #C9B8A8;
+      color: #FFFFFF;
+      margin-left: auto;
+    }
+    
+    .message.ai {
+      background: #F5F5F0;
+      color: #4A4A4A;
+    }
+    
+    .chat-input {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .chat-input input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 1px solid #E0E0E0;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #FFFFFF;
+      color: #4A4A4A;
+      transition: border-color 0.2s;
+    }
+    
+    .chat-input input:focus {
+      outline: none;
+      border-color: #A89F91;
+    }
+    
+    .chat-input input::placeholder {
+      color: #B0B0B0;
+    }
+    
+    .chat-input button {
+      padding: 14px 28px;
+      background: #8B7E6E;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    
+    .chat-input button:hover {
+      background: #7A6D5D;
+    }
+    
+    .chat-input button:disabled {
+      background: #D0D0D0;
+      cursor: not-allowed;
+    }
+    
+    .signal-list {
+      max-height: 450px;
+      overflow-y: auto;
+    }
+    
+    .signal-item {
+      border: 1px solid #E8E8E8;
+      border-radius: 4px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+      background: #FFFFFF;
+    }
+    
+    .signal-item:hover {
+      border-color: #C9B8A8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .signal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .trustedscore-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+    
+    .trustedscore-badge:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    
+    
+    .signal-id {
+      background: #F5F5F0;
+      color: #6B6B6B;
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    
+    .signal-status {
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .signal-status.active {
+      background: #E8EDE8;
+      color: #5A6B5A;
+    }
+    
+    .signal-status.expired {
+      background: #EDE8E8;
+      color: #6B5A5A;
+    }
+    
+    .signal-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 13px;
+      color: #6B6B6B;
+    }
+    
+    .signal-details strong {
+      color: #4A4A4A;
+      font-weight: 500;
+    }
+    
+    .signal-details code {
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      font-size: 11px;
+      background: #FAFAF9;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #6B6B6B;
+    }
+    
+    .signal-actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #8B7E6E;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #7A6D5D;
+    }
+    
+    .btn-secondary {
+      background: #F5F5F0;
+      color: #6B6B6B;
+    }
+    
+    .btn-secondary:hover {
+      background: #E8E8E8;
+    }
+    
+    .wallet-info {
+      background: #FAFAF9;
+      padding: 18px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      border: 1px solid #E8E8E8;
+    }
+    
+    .wallet-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #E8E8E8;
+      font-size: 13px;
+    }
+    
+    .wallet-item:last-child {
+      border-bottom: none;
+    }
+    
+    .config-section {
+      margin-bottom: 15px;
+    }
+    
+    .config-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #F0F0F0;
+      font-size: 13px;
+    }
+    
+    .status-ok {
+      color: #5A6B5A;
+    }
+    
+    .status-error {
+      color: #6B5A5A;
+    }
+    
+    .form-group {
+      margin-bottom: 18px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #4A4A4A;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #E0E0E0;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #FFFFFF;
+      color: #4A4A4A;
+      transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #A89F91;
+    }
+    
+    .form-group textarea {
+      font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #F5F5F0;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #D0D0D0;
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #B0B0B0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Banner Section -->
+  <div class="banner-section">
+    <canvas id="bannerCanvas"></canvas>
+      <div class="banner-content">
+        <h1 class="banner-title">SIGNAL MARKET</h1>
+        <div class="banner-subtitle">Where zkTLS Improves Signal Credibility</div>
+        <div class="banner-formula">
+          φ = (1 + √5) / 2 ≈ 1.618033988749...
+        </div>
+      </div>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+  <div class="container">
+    <div>
+      <!-- Agent Registration Card -->
+      <div class="card" id="registrationCard" style="margin-bottom: 20px;opacity:0.5;pointer-events:none;">
+        <h2>Agent Registration <span id="registrationBadge" style="font-size:10px;padding:3px 8px;background:#EDE8E8;color:#6B5A5A;border-radius:3px;margin-left:8px;">-</span></h2>
+        <div id="walletConnectPrompt">
+          <p style="color:#6B6B6B;font-size:13px;">Please connect wallet first</p>
+        </div>
+        <div id="registrationForm" style="display:none;">
+          <div style="font-size:13px;color:#6B6B6B;margin-bottom:16px;">Register to enable all features</div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label style="font-size:11px;">Agent Name</label>
+            <input type="text" id="agentName" placeholder="Your name" value="MyAgent" style="padding:10px;">
+          </div>
+          <button class="btn btn-primary" id="registerBtn" onclick="registerAgent()" style="width:100%;">Register</button>
+        </div>
+        <div id="registeredInfo" style="display:none;padding:16px;background:#F5F5F0;border-radius:4px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.05em;">Registered</div>
+              <div style="font-size:14px;color:#4A4A4A;font-weight:500;margin-top:4px;" id="registeredName">-</div>
+            </div>
+            <div style="color:#5A6B5A;font-size:20px;">✓</div>
+          </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid #E8E8E8;font-size:12px;color:#666;">
+            Reputation: <span id="registeredReputation">0</span> (<span id="registeredRatings">0</span> ratings)
+          </div>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-bottom: 20px;">
+        <h2>Wallet</h2>
+        <button class="btn btn-primary" onclick="connectWallet()" id="connectBtn" style="width:100%;">Connect Wallet</button>
+        <button class="btn btn-secondary" onclick="disconnectWallet()" id="disconnectBtn" style="width:100%;display:none;">Disconnect</button>
+        <div id="walletInfo" style="margin-top:16px;padding:16px;background:#FAFAF9;border-radius:4px;display:none;">
+          <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Connected</div>
+          <div style="font-family:'SF Mono',monospace;font-size:13px;color:#4A4A4A;word-break:break-all;" id="walletAddress"></div>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-bottom: 20px;">
+        <h2>Delivery Status <button class="btn btn-secondary" onclick="checkDeliveryStatus()" style="font-size:11px;padding:6px 12px;letter-spacing:0.05em;">REFRESH</button></h2>
+        <div id="deliveryStatus">
+          <div style="text-align:center;color:#999;font-size:13px;">Click refresh to check status</div>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-bottom: 20px;">
+        <h2>Configuration</h2>
+        <div id="configStatus">
+          <div style="text-align:center;color:#999;font-size:13px;">Loading...</div>
+        </div>
+      </div>
+      
+      <div class="card" id="publishCard" style="margin-bottom: 20px;opacity:0.5;pointer-events:none;">
+        <h2>Publish Signal</h2>
+        <div class="form-group">
+          <label>Instrument</label>
+          <input type="text" id="instId" value="BTC-USDT">
+        </div>
+        <div class="form-group">
+          <label>Direction</label>
+          <select id="side">
+            <option value="Long">Long</option>
+            <option value="Short">Short</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Entry (Optional)</label>
+            <input type="number" id="entry" placeholder="95000">
+          </div>
+          <div class="form-group">
+            <label>Price (OKB)</label>
+            <input type="number" id="price" step="0.01" value="0.01">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Duration (Hours)</label>
+          <input type="number" id="expireHours" value="24">
+        </div>
+        <div class="form-group">
+          <label>Content (Will be encrypted)</label>
+          <textarea id="content" rows="6" placeholder='{"side":"Long","entry":"95000","target":"100000","stopLoss":"93000"}'></textarea>
+        </div>
+        <div class="form-group">
+          <label style="font-size:11px;color:#666;">
+            <input type="checkbox" id="encryptContent" checked> Encrypt content before publishing
+          </label>
+        </div>
+        <button class="btn btn-primary" onclick="publishSignal()" style="width: 100%; margin-top: 12px;">Publish</button>
+      </div>
+    </div>
+    
+    <div class="card" id="mainContent">
+      <h1>Signal Market AI Agent</h1>
+      <div class="chat-container" id="chatContainer">
+        <div class="chat-messages" id="chatMessages">
+          <div class="message ai">
+Welcome to Signal Market AI Assistant!
+
+I can help you:
+• View signals - "Show available signals"
+• Check reputation - "Check provider reputation"
+• View balance - "Check wallet balance"
+• Publish signals - "Publish a BTC signal"
+• Buy signals - "Buy the first signal"
+• Rate signals - "Rate the first signal 5 stars"
+
+Try it out!
+          </div>
+        </div>
+        <div class="chat-input">
+          <input type="text" id="chatInput" placeholder="Type your command in natural language..." onkeypress="if(event.key==='Enter')sendMessage()">
+          <button onclick="sendMessage()" id="sendBtn">Send</button>
+        </div>
+      </div>
+      
+      <div style="margin-top: 32px;">
+        <h2>Available Signals <button class="btn btn-secondary" onclick="loadSignals()" style="font-size:11px;padding:6px 12px;letter-spacing:0.05em;">REFRESH</button></h2>
+        <div class="signal-list" id="signalList"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.0/dist/ethers.umd.min.js"></script>
+  <script>
+    // Banner Animation - Mathematical Art
+    (function() {
+      const canvas = document.getElementById('bannerCanvas');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      const PHI = (1 + Math.sqrt(5)) / 2;
+
+      function resize() {
+        width = canvas.width = canvas.parentElement.offsetWidth;
+        height = canvas.height = canvas.parentElement.offsetHeight;
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+
+      class Particle {
+        constructor(x, y) {
+          this.x = x;
+          this.y = y;
+          this.angle = Math.random() * Math.PI * 2;
+          this.speed = 0.5 + Math.random() * 0.5;
+          this.radius = 1 + Math.random() * 2;
+          this.opacity = 0.3 + Math.random() * 0.4;
+          this.phase = Math.random() * Math.PI * 2;
+        }
+
+        update() {
+          this.angle += 0.005 * this.speed;
+          this.phase += 0.02;
+        }
+
+        draw(ctx, time) {
+          const spiralFactor = Math.sin(this.phase + time * 0.001) * 0.3 + 0.7;
+          ctx.beginPath();
+          ctx.arc(
+            this.x + Math.cos(this.angle) * 50 * spiralFactor,
+            this.y + Math.sin(this.angle) * 50 * spiralFactor,
+            this.radius * spiralFactor,
+            0,
+            Math.PI * 2
+          );
+          ctx.fillStyle = `rgba(201, 184, 168, ${this.opacity * spiralFactor})`;
+          ctx.fill();
+        }
+      }
+
+      const particles = [];
+      for (let i = 0; i < 100; i++) {
+        particles.push(new Particle(Math.random() * width, Math.random() * height));
+      }
+
+      function drawFibonacciSpiral(time) {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const maxRadius = Math.max(width, height) * 0.4;
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(time * 0.0002);
+
+        for (let arm = 0; arm < 3; arm++) {
+          const armOffset = (arm * Math.PI * 2) / 3;
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(201, 184, 168, ${0.15 + Math.sin(time * 0.001 + arm) * 0.05})`;
+          ctx.lineWidth = 1.5;
+
+          for (let i = 0; i < 500; i++) {
+            const angle = armOffset + i * 0.1;
+            const radius = i * 0.8 * PHI;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+
+            if (i % 50 === 0 && i > 0) {
+              const rectSize = radius * 0.1;
+              ctx.save();
+              ctx.translate(x, y);
+              ctx.rotate(angle + Math.PI / 2);
+              ctx.strokeStyle = `rgba(139, 126, 110, ${0.1 + Math.sin(time * 0.002 + i * 0.01) * 0.05})`;
+              ctx.strokeRect(-rectSize / 2, -rectSize / 2, rectSize, rectSize);
+              ctx.restore();
+            }
+          }
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawSacredGeometry(time) {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        ctx.save();
+        ctx.translate(centerX, centerY);
+
+        const layers = 7;
+        const baseRadius = 60 + Math.sin(time * 0.001) * 10;
+
+        for (let layer = 0; layer < layers; layer++) {
+          const radius = baseRadius * (layer + 1) / layers;
+          const circles = layer === 0 ? 1 : 6 * layer;
+          ctx.strokeStyle = `rgba(201, 184, 168, ${0.08 * (1 - layer / layers)})`;
+          ctx.lineWidth = 1;
+
+          for (let i = 0; i < circles; i++) {
+            const angle = (i / circles) * Math.PI * 2;
+            const x = layer === 0 ? 0 : Math.cos(angle) * radius * 0.5;
+            const y = layer === 0 ? 0 : Math.sin(angle) * radius * 0.5;
+            ctx.beginPath();
+            ctx.arc(x, y, radius * 0.3, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawWaveFunctions(time) {
+        const waves = [
+          { freq: 0.01, amp: 100, color: 'rgba(201, 184, 168, 0.08)' },
+          { freq: 0.015, amp: 80, color: 'rgba(139, 126, 110, 0.06)' },
+          { freq: 0.02, amp: 60, color: 'rgba(201, 184, 168, 0.05)' }
+        ];
+
+        waves.forEach((wave, index) => {
+          ctx.beginPath();
+          ctx.strokeStyle = wave.color;
+          ctx.lineWidth = 1;
+
+          for (let x = 0; x < width; x += 5) {
+            const y = height / 2 +
+              Math.sin(x * wave.freq + time * 0.001 * (index + 1)) * wave.amp +
+              Math.sin(x * wave.freq * PHI + time * 0.0008) * (wave.amp * 0.5);
+
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        });
+      }
+
+      function drawConnectionGrid(time) {
+        const gridSize = 80;
+        const offsetX = Math.sin(time * 0.0005) * 20;
+        const offsetY = Math.cos(time * 0.0007) * 20;
+
+        ctx.strokeStyle = 'rgba(139, 126, 110, 0.05)';
+        ctx.lineWidth = 0.5;
+
+        for (let x = offsetX; x < width; x += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+
+        for (let y = offsetY; y < height; y += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+      }
+
+      function render(time) {
+        ctx.fillStyle = 'rgba(10, 14, 26, 0.1)';
+        ctx.fillRect(0, 0, width, height);
+
+        drawConnectionGrid(time);
+        drawWaveFunctions(time);
+        drawFibonacciSpiral(time);
+        drawSacredGeometry(time);
+
+        particles.forEach(particle => {
+          particle.update();
+          particle.draw(ctx, time);
+        });
+
+        ctx.strokeStyle = 'rgba(201, 184, 168, 0.02)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 150) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(render);
+      }
+
+      render(0);
+    })();
+
+    // Existing code...
+    // State
+    let isConnected = false;
+    let isRegistered = false;
+    let userAddress = '';
+    
+    // Check config
+    async function checkConfig() {
+      try {
+        const res = await fetch('/api/config-status');
+        const data = await res.json();
+        
+        const statusDiv = document.getElementById('configStatus');
+        
+        if (data.items && data.items.length > 0) {
+          const itemsHtml = data.items.map(item => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #F0F0F0;">
+              <span style="font-size:13px;color:#4A4A4A;">${item.name}</span>
+              <span style="font-size:12px;font-weight:500;${item.configured ? 'color:#5A6B5A;' : 'color:#6B5A5A;'}">
+                ${item.configured ? '✓ Ready' : '✗ Missing'}
+              </span>
+            </div>
+          `).join('');
+          
+          const summaryClass = data.allConfigured ? 'color:#5A6B5A;' : 'color:#6B5A5A;';
+          const summaryText = data.allConfigured ? 'All configurations ready' : 'Some configurations missing';
+          
+          statusDiv.innerHTML = `
+            <div style="margin-bottom:12px;">
+              ${itemsHtml}
+            </div>
+            <div style="text-align:center;padding:8px;background:${data.allConfigured ? '#E8EDE8' : '#EDE8E8'};border-radius:4px;font-size:12px;${summaryClass}">
+              ${data.allConfigured ? '✓' : '!'} ${summaryText}
+            </div>
+          `;
+        } else {
+          statusDiv.innerHTML = '<div style="text-align:center;color:#999;">Failed to load configuration</div>';
+        }
+      } catch (e) {
+        document.getElementById('configStatus').innerHTML = '<div style="text-align:center;color:#6B5A5A;">Check failed: ' + e.message + '</div>';
+      }
+    }
+    
+    window.onload = () => { 
+      checkConfig();
+      checkWalletConnection();
+    };
+    
+    // Check if wallet already connected
+    async function checkWalletConnection() {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            userAddress = accounts[0];
+            isConnected = true;
+            updateWalletUI();
+            checkRegistrationStatus();
+          } else {
+            disableAllUI();
+          }
+        } catch (e) {
+          console.error('Wallet check error:', e);
+          disableAllUI();
+        }
+      } else {
+        disableAllUI();
+      }
+    }
+    
+    // Connect wallet
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert('Please install MetaMask or another Web3 wallet');
+        return;
+      }
+      
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        userAddress = accounts[0];
+        
+        // 签名获取公钥
+        const signature = await window.ethereum.request({
+          method: 'personal_sign',
+          params: ['you are visiting the signal agent market', userAddress]
+        });
+        
+        // 从签名恢复公钥 (ethers v6: 返回 0x04 + x + y 共 130 字符)
+        const messageHash = ethers.hashMessage('you are visiting the signal agent market');
+        const sig = ethers.Signature.from(signature);
+        const publicKeyFull = ethers.SigningKey.recoverPublicKey(messageHash, sig);
+        const publicKey = publicKeyFull.substring(4); // 去掉 0x04 前缀，保留 128 字符 (x+y)
+        
+        console.log('[Connect] Full public key:', publicKeyFull);
+        console.log('[Connect] Public key length:', publicKey.length);
+        console.log('[Connect] Public key:', publicKey.substring(0, 32) + '...');
+        
+        // 保存到 localStorage (按地址索引)
+        const key = 'publicKey_' + userAddress.toLowerCase();
+        localStorage.setItem(key, publicKey);
+        console.log('[Connect] Saved public key to localStorage');
+        
+        isConnected = true;
+        updateWalletUI();
+        checkRegistrationStatus();
+        
+        addMessage('Wallet connected: ' + userAddress.substring(0, 10) + '...', 'ai');
+      } catch (e) {
+        console.error('Connect error:', e);
+        if (e.code !== 4001) {
+          alert('Failed to connect wallet: ' + e.message);
+        }
+      }
+    }
+    
+    // Disconnect wallet
+    function disconnectWallet() {
+      isConnected = false;
+      isRegistered = false;
+      userAddress = '';
+      
+      // 清除公钥缓存（可选，如果想保留可以注释掉）
+      // const key = 'publicKey_' + userAddress.toLowerCase();
+      // localStorage.removeItem(key);
+      
+      document.getElementById('connectBtn').style.display = 'block';
+      document.getElementById('disconnectBtn').style.display = 'none';
+      document.getElementById('walletInfo').style.display = 'none';
+      
+      disableAllUI();
+    }
+    
+    // Update wallet UI
+    function updateWalletUI() {
+      document.getElementById('connectBtn').style.display = 'none';
+      document.getElementById('disconnectBtn').style.display = 'block';
+      document.getElementById('walletInfo').style.display = 'block';
+      document.getElementById('walletAddress').textContent = userAddress;
+      loadBalance();
+      checkDeliveryStatus();
+    }
+    
+    // Load wallet balance
+    async function loadBalance() {
+      try {
+        const res = await fetch(`/api/balance/${userAddress}`);
+        const data = await res.json();
+        const balanceDiv = document.getElementById('walletBalance');
+        if (balanceDiv) {
+          balanceDiv.textContent = `${parseFloat(data.balance).toFixed(4)} OKB`;
+        } else {
+          const balanceEl = document.createElement('div');
+          balanceEl.id = 'walletBalance';
+          balanceEl.style.cssText = 'margin-top:8px;font-size:12px;color:#666;';
+          balanceEl.textContent = `${parseFloat(data.balance).toFixed(4)} OKB`;
+          document.getElementById('walletInfo').appendChild(balanceEl);
+        }
+      } catch (e) {
+        console.error('Balance error:', e);
+      }
+    }
+    
+    // Check registration status
+    async function checkRegistrationStatus() {
+      if (!isConnected) {
+        disableAllUI();
+        return;
+      }
+      
+      try {
+        const res = await fetch(`/api/registration-status/${userAddress}`);
+        const data = await res.json();
+        
+        const badge = document.getElementById('registrationBadge');
+        const regCard = document.getElementById('registrationCard');
+        const regForm = document.getElementById('registrationForm');
+        const regInfo = document.getElementById('registeredInfo');
+        const walletPrompt = document.getElementById('walletConnectPrompt');
+        
+        regCard.style.opacity = '1';
+        regCard.style.pointerEvents = 'auto';
+        walletPrompt.style.display = 'none';
+        
+        if (data.registered) {
+          isRegistered = true;
+          badge.textContent = 'REGISTERED';
+          badge.style.background = '#E8EDE8';
+          badge.style.color = '#5A6B5A';
+          regForm.style.display = 'none';
+          regInfo.style.display = 'block';
+          document.getElementById('registeredName').textContent = data.name;
+          document.getElementById('registeredReputation').textContent = data.reputationScore || '0';
+          document.getElementById('registeredRatings').textContent = data.totalRatings || '0';
+          enableAllUI();
+          loadSignals();
+        } else {
+          isRegistered = false;
+          badge.textContent = 'NOT REGISTERED';
+          badge.style.background = '#EDE8E8';
+          badge.style.color = '#6B5A5A';
+          regForm.style.display = 'block';
+          regInfo.style.display = 'none';
+          disableMainUI();
+        }
+      } catch (e) {
+        console.error('Registration check error:', e);
+        disableMainUI();
+      }
+    }
+    
+    // Enable all UI
+    function enableAllUI() {
+      document.getElementById('mainContent').style.opacity = '1';
+      document.getElementById('mainContent').style.pointerEvents = 'auto';
+      document.getElementById('chatContainer').style.opacity = '1';
+      document.getElementById('chatContainer').style.pointerEvents = 'auto';
+      document.getElementById('publishCard').style.opacity = '1';
+      document.getElementById('publishCard').style.pointerEvents = 'auto';
+    }
+    
+    // Disable all UI (before wallet connect)
+    function disableAllUI() {
+      document.getElementById('registrationCard').style.opacity = '0.5';
+      document.getElementById('registrationCard').style.pointerEvents = 'none';
+      document.getElementById('mainContent').style.opacity = '0.5';
+      document.getElementById('mainContent').style.pointerEvents = 'none';
+      document.getElementById('chatContainer').style.opacity = '0.5';
+      document.getElementById('chatContainer').style.pointerEvents = 'none';
+      document.getElementById('publishCard').style.opacity = '0.5';
+      document.getElementById('publishCard').style.pointerEvents = 'none';
+    }
+    
+    // Disable main UI only (after wallet connect, before registration)
+    function disableMainUI() {
+      document.getElementById('mainContent').style.opacity = '0.5';
+      document.getElementById('mainContent').style.pointerEvents = 'none';
+      document.getElementById('chatContainer').style.opacity = '0.5';
+      document.getElementById('chatContainer').style.pointerEvents = 'none';
+      document.getElementById('publishCard').style.opacity = '0.5';
+      document.getElementById('publishCard').style.pointerEvents = 'none';
+    }
+    
+    // Register Agent
+    async function registerAgent() {
+      const name = document.getElementById('agentName').value.trim() || 'MyAgent';
+      
+      if (!confirm(`Register as Agent?\nName: ${name}`)) return;
+      
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = true;
+      btn.textContent = 'Preparing...';
+      
+      try {
+        // 1. 获取交易数据
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, from: userAddress })
+        });
+        const data = await res.json();
+        
+        if (!data.success) {
+          alert('❌ ' + data.message);
+          return;
+        }
+        
+        // 2. 前端钱包签名
+        btn.textContent = 'Signing...';
+        const txParams = {
+          from: userAddress,
+          to: data.tx.to,
+          data: data.tx.data,
+          value: '0x0',
+          gasLimit: '0x' + BigInt(data.tx.gasLimit || 200000).toString(16),
+          gasPrice: '0x' + BigInt(data.tx.gasPrice).toString(16),
+          chainId: '0x7a0'
+        };
+        
+        const signedTx = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [txParams]
+        });
+        
+        // 3. 等待确认
+        btn.textContent = 'Confirming...';
+        addMessage('Registering agent...', 'ai');
+        
+        // 4. 查询交易状态
+        await waitForTransaction(signedTx);
+        
+        alert('Agent registered successfully!');
+        await checkRegistrationStatus();
+        
+      } catch (e) {
+        console.error('Register error:', e);
+        if (e.code !== 4001) { // User rejected
+          alert('❌ Error: ' + (e.message || 'Unknown error'));
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Confirm & Pay';
+        }
+      }
+    }
+    
+    // Wait for transaction confirmation
+    async function waitForTransaction(hash) {
+      const maxAttempts = 30;
+      for (let i = 0; i < maxAttempts; i++) {
+        const res = await fetch(`/api/tx/${hash}`);
+        const data = await res.json();
+        
+        if (data.confirmed) {
+          if (data.status === 1) {
+            return { success: true, hash };
+          } else {
+            throw new Error('Transaction reverted');
+          }
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+      throw new Error('Transaction confirmation timeout');
+    }
+    
+    async function loadSignals() {
+      try {
+        const res = await fetch('/api/signals');
+        const data = await res.json();
+        const list = document.getElementById('signalList');
+        if (data.signals.length === 0) {
+          list.innerHTML = '<p style="color:#999;text-align:center;">No signals yet</p>';
+          return;
+        }
+        list.innerHTML = data.signals.map(s => {
+          const score = parseInt(s.trustedScore || 0);
+          let scoreColor = '#999';
+          let scoreBg = '#f0f0f0';
+          if (score >= 10) { scoreColor = '#22c55e'; scoreBg = '#dcfce7'; }
+          else if (score >= 7) { scoreColor = '#3b82f6'; scoreBg = '#dbeafe'; }
+          else if (score >= 4) { scoreColor = '#eab308'; scoreBg = '#fef9c3'; }
+          else { scoreColor = '#ef4444'; scoreBg = '#fee2e2'; }
+          
+          return `
+          <div class="signal-item">
+            <div class="signal-header">
+              <span class="signal-id">#${s.signalId}</span>
+              <span class="signal-status ${s.active ? 'active' : 'expired'}">${s.active ? 'Active' : 'Expired'}</span>
+              <span class="trustedscore-badge" style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;background:${scoreBg};color:${scoreColor};margin-left:8px;">
+                ★ ${score} pts
+              </span>
+            </div>
+            <div class="signal-details">
+              <div><strong>Instrument:</strong> ${s.meta.instId}</div>
+              <div><strong>Duration:</strong> ${s.meta.expireHours}h</div>
+              <div><strong>Price:</strong> ${s.meta.priceOKB || s.priceOKB} OKB</div>
+              <div style="font-size:11px;color:#666;">
+                <strong>Transaction:</strong><br>
+                <code style="word-break:break-all;display:block;margin:3px 0;">${s.publishTxHash || 'N/A'}</code>
+              </div>
+            </div>
+            <div class="signal-actions">
+              ${s.active ? `<button class="btn btn-primary" onclick="buySignal(${s.signalId})">Buy</button>` : ''}
+              <button class="btn btn-secondary" onclick="viewSignalDetails(${s.signalId})">View Details</button>
+            </div>
+          </div>
+          `;
+        }).join('');
+      } catch (e) { console.error(e); }
+    }
+    
+    async function sendMessage() {
+      if (!isRegistered) return;
+      
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      if (!message) return;
+      
+      addMessage(message, 'user');
+      input.value = '';
+      
+      const btn = document.getElementById('sendBtn');
+      btn.disabled = true;
+      btn.innerHTML = '...';
+      
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+        
+        addMessage(data.reply || 'I did not understand', 'ai');
+        
+        setTimeout(() => { loadSignals(); }, 1500);
+      } catch (e) {
+        addMessage('Error: ' + e.message, 'ai');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Send';
+      }
+    }
+    
+    function addMessage(text, type) {
+      const messages = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = `message ${type}`;
+      div.innerHTML = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+    
+    async function buySignal(signalId) {
+      if (!isRegistered) return;
+      
+      const btn = document.querySelector(`button[onclick="buySignal(${signalId})"]`);
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Preparing...';
+      }
+      
+      try {
+        // 1. 从 localStorage 获取买家公钥
+        const key = 'publicKey_' + userAddress.toLowerCase();
+        const buyerPublicKey = localStorage.getItem(key);
+        
+        if (!buyerPublicKey) {
+          addMessage('❌ Public key not found. Please reconnect wallet.', 'ai');
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Buy';
+          }
+          return;
+        }
+        
+        console.log('[Buy] Got buyer public key from localStorage:', buyerPublicKey);
+        console.log('[Buy] Public key length:', buyerPublicKey.length);
+        
+        // 2. 获取交易数据
+        const res = await fetch('/api/buy-prepare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signalId, from: userAddress, buyerPublicKey })
+        });
+        const data = await res.json();
+        
+        if (!data.success) {
+          addMessage('❌ ' + data.message, 'ai');
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Buy';
+          }
+          return;
+        }
+        
+        addMessage(`Buying Signal #${signalId}\n- Price: ${data.signalInfo.priceOKB} OKB\n- Provider: ${data.signalInfo.provider.substring(0, 10)}...`, 'ai');
+        
+        // 3. 前端钱包签名
+        if (btn) btn.textContent = 'Signing...';
+        const txParams = {
+          from: userAddress,
+          to: data.tx.to,
+          data: data.tx.data,
+          value: '0x' + BigInt(data.tx.value).toString(16),
+          gasLimit: '0x' + BigInt(data.tx.gasLimit || 500000).toString(16),
+          gasPrice: '0x' + BigInt(data.tx.gasPrice).toString(16),
+          chainId: '0x7a0'
+        };
+        
+        const signedTx = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [txParams]
+        });
+        
+        // 4. 等待确认
+        if (btn) btn.textContent = 'Confirming...';
+        addMessage('Waiting for transaction confirmation...', 'ai');
+        
+        await waitForTransaction(signedTx);
+        
+        addMessage(`Purchase successful!\nTx: ${signedTx.substring(0, 20)}...`, 'ai');
+        checkDeliveryStatus();
+        setTimeout(loadSignals, 2000);
+        
+      } catch (e) {
+        console.error('Buy error:', e);
+        if (e.code !== 4001) {
+          addMessage('❌ Error: ' + e.message, 'ai');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Buy';
+        }
+      }
+    }
+    
+    // 检查交付状态
+    async function checkDeliveryStatus() {
+      if (!isConnected) return;
+      
+      try {
+        const res = await fetch(`/api/purchase-status/${userAddress}`);
+        const data = await res.json();
+        
+        const statusDiv = document.getElementById('deliveryStatus');
+        
+        if (data.pendingCount === 0 && data.encryptedCount === 0) {
+          statusDiv.innerHTML = '<div style="text-align:center;color:#5A6B5A;font-size:13px;">All up to date</div>';
+          return;
+        }
+        
+        let html = '';
+        
+        // Provider 待交付
+        if (data.pendingCount > 0) {
+          html += '<div style="margin-bottom:16px;">';
+          html += '<div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Pending Delivery (As Provider)</div>';
+          data.pendingDeliveries.forEach(id => {
+            html += `<div style="font-size:13px;padding:8px;background:#F5F5F0;border-radius:4px;margin-bottom:6px;">Purchase #${id} <button class="btn btn-secondary" onclick="deliverSignal(${id})" style="font-size:11px;padding:4px 8px;margin-left:8px;">Deliver</button></div>`;
+          });
+          html += '</div>';
+        }
+        
+        // Buyer 待下载/确认
+        if (data.encryptedCount > 0) {
+          html += '<div>';
+          html += '<div style="font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">📥 Ready to Download (As Buyer)</div>';
+          data.encryptedSignals.forEach(id => {
+            html += `<div style="font-size:13px;padding:8px;background:#E8EDE8;border-radius:4px;margin-bottom:6px;">Purchase #${id} 
+              <button class="btn btn-primary" onclick="decryptSignal(${id})" style="font-size:11px;padding:4px 8px;margin-left:8px;">Decrypt & View</button>
+              <button class="btn btn-secondary" onclick="confirmDelivery(${id})" style="font-size:11px;padding:4px 8px;margin-left:8px;">Confirm & Pay</button>
+            </div>`;
+          });
+          html += '</div>';
+        }
+        
+        statusDiv.innerHTML = html;
+      } catch (e) {
+        document.getElementById('deliveryStatus').innerHTML = '<div style="text-align:center;color:#6B5A5A;font-size:13px;">Error: ' + e.message + '</div>';
+      }
+    }
+    
+    // 发布信号
+    async function publishSignal() {
+      if (!isRegistered) return;
+      
+      const instId = document.getElementById('instId').value.trim();
+      const price = document.getElementById('price').value;
+      const expireHours = document.getElementById('expireHours').value || '24';
+      
+      if (!instId) { alert('Please enter instrument'); return; }
+      if (!price || price <= 0) { alert('Please enter price'); return; }
+      
+      if (!confirm(`Publish Signal?\n${instId} | ${expireHours}h | ${price} OKB`)) return;
+      
+      const btn = document.querySelector('#publishCard .btn-primary');
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Generating Proof...';
+      
+      try {
+        // 1. 生成 zkTLS 证明
+        addMessage('🔐 Generating zkTLS proof for ' + instId + '...', 'ai');
+        const proofRes = await fetch('/api/generate-proof', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ instId, from: userAddress })
+        });
+        const proofData = await proofRes.json();
+        
+        if (!proofData.success) {
+          addMessage('❌ Proof generation failed: ' + proofData.message, 'ai');
+          alert('❌ ' + proofData.message);
+          return;
+        }
+        
+        addMessage('Proof generated! PnL: ' + proofData.pnl, 'ai');
+        btn.textContent = 'Preparing...';
+        
+        // 2. 获取交易数据
+        const content = document.getElementById('content').value.trim();
+        const encryptContent = document.getElementById('encryptContent').checked;
+        
+        const res = await fetch('/api/publish', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            instId,
+            price,
+            expireHours,
+            from: userAddress,
+            attestation: proofData.attestation,
+            publishTxHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            content,
+            encryptContent
+          })
+        });
+        const data = await res.json();
+        
+        if (!data.success) {
+          alert('❌ ' + data.message);
+          return;
+        }
+        
+        // 3. 前端钱包签名
+        btn.textContent = 'Signing...';
+        const txParams = {
+          from: userAddress,
+          to: data.tx.to,
+          data: data.tx.data,
+          value: '0x0',
+          gasLimit: '0x' + BigInt(data.tx.gasLimit || 800000).toString(16),
+          gasPrice: '0x' + BigInt(data.tx.gasPrice).toString(16),
+          chainId: '0x7a0'
+        };
+        
+        const signedTx = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [txParams]
+        });
+        
+        // 4. 等待确认
+        btn.textContent = 'Confirming...';
+        addMessage('Publishing signal...', 'ai');
+        
+        await waitForTransaction(signedTx);
+        
+        addMessage(`Signal published!\nTx: ${signedTx}`, 'ai');
+        setTimeout(loadSignals, 2000);
+        
+      } catch (e) {
+        console.error('Publish error:', e);
+        if (e.code !== 4001) {
+          addMessage('❌ Error: ' + e.message, 'ai');
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+    
+    // Provider 交付信号
+    async function deliverSignal(purchaseId) {
+      if (!isRegistered) return;
+      
+      const btn = document.querySelector(`button[onclick="deliverSignal(${purchaseId})"]`);
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Preparing...';
+      }
+      
+      try {
+        console.log('[Deliver] Starting deliver for purchaseId:', purchaseId);
+        console.log('[Deliver] User address:', userAddress);
+        
+        // 1. 获取交付交易数据
+        const res = await fetch('/api/deliver-prepare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ purchaseId, from: userAddress })
+        });
+        const data = await res.json();
+        
+        console.log('[Deliver] Response from server:', data);
+        
+        if (!data.success) {
+          addMessage('❌ ' + data.message, 'ai');
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Deliver';
+          }
+          return;
+        }
+        
+        console.log('[Deliver] Transaction prepared:', data.tx);
+        
+        addMessage(`🔐 Delivering Purchase #${purchaseId}...`, 'ai');
+        
+        // 2. 前端钱包签名
+        if (btn) btn.textContent = 'Signing...';
+        const txParams = {
+          from: userAddress,
+          to: data.tx.to,
+          data: data.tx.data,
+          value: '0x0',
+          gasLimit: '0x' + BigInt(data.tx.gasLimit || 200000).toString(16),
+          gasPrice: '0x' + BigInt(data.tx.gasPrice).toString(16),
+          chainId: '0x7a0'
+        };
+        
+        const signedTx = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [txParams]
+        });
+        
+        // 3. 等待确认
+        if (btn) btn.textContent = 'Confirming...';
+        await waitForTransaction(signedTx);
+        
+        addMessage(`Delivery submitted!\nTx: ${signedTx.substring(0, 20)}...`, 'ai');
+        checkDeliveryStatus();
+        
+      } catch (e) {
+        console.error('Deliver error:', e);
+        if (e.code !== 4001) {
+          addMessage('❌ Error: ' + e.message, 'ai');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Deliver';
+        }
+      }
+    }
+    
+    // Buyer 确认交付
+    async function confirmDelivery(purchaseId) {
+      if (!isRegistered) return;
+      
+      const btn = document.querySelector(`button[onclick="confirmDelivery(${purchaseId})"]`);
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Confirming...';
+      }
+      
+      try {
+        const res = await fetch('/api/confirm-delivery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ purchaseId, from: userAddress })
+        });
+        const data = await res.json();
+        
+        if (!data.success) {
+          addMessage('❌ ' + data.message, 'ai');
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Confirm & Pay';
+          }
+          return;
+        }
+        
+        const txParams = {
+          from: userAddress,
+          to: data.tx.to,
+          data: data.tx.data,
+          value: '0x0',
+          gasLimit: '0x' + BigInt(data.tx.gasLimit || 100000).toString(16),
+          gasPrice: '0x' + BigInt(data.tx.gasPrice).toString(16),
+          chainId: '0x7a0'
+        };
+        
+        const signedTx = await window.ethereum.request({
+          method: 'eth_sendTransaction',
+          params: [txParams]
+        });
+        
+        await waitForTransaction(signedTx);
+        
+        addMessage(`Delivery confirmed!\nTx: ${signedTx.substring(0, 20)}...`, 'ai');
+        checkDeliveryStatus();
+        
+      } catch (e) {
+        console.error('Confirm error:', e);
+        if (e.code !== 4001) {
+          addMessage('❌ Error: ' + e.message, 'ai');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Confirm & Pay';
+        }
+      }
+    }
+    
+    // Buyer 解密并查看信号
+    async function decryptSignal(purchaseId) {
+      if (!isRegistered) return;
+      
+      const btn = document.querySelector(`button[onclick="decryptSignal(${purchaseId})"]`);
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Decrypting...';
+      }
+      
+      try {
+        // 调用解密 API（使用后端存储的私钥）
+        const res = await fetch('/api/decrypt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ purchaseId })
+        });
+        const data = await res.json();
+        
+        if (!data.success) {
+          addMessage('❌ ' + data.message, 'ai');
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Decrypt & View';
+          }
+          return;
+        }
+        
+        // 显示解密后的内容
+        addMessage(`🔓 Purchase #${purchaseId} decrypted!\\n\\n**Signal Content**:\\n\\n${data.decryptedContent}`, 'ai');
+        
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '✓ Decrypted';
+        }
+        
+      } catch (e) {
+        console.error('Decrypt error:', e);
+        if (e.code !== 4001) {
+          addMessage('❌ Error: ' + e.message, 'ai');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Decrypt & View';
+        }
+      }
+    }
+    
+    // View and decrypt signal details
+    async function viewSignalDetails(signalId) {
+      if (!isRegistered) return;
+      
+      try {
+        addMessage(`Fetching signal #${signalId}...`, 'ai');
+        
+        // 从链上获取加密内容
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `view signal ${signalId}` })
+        });
+        const data = await res.json();
+        addMessage(data.reply, 'ai');
+        
+      } catch (e) {
+        addMessage(`Error: ${e.message}`, 'ai');
+      }
+    }
+  </script>
+</body>
+</html>

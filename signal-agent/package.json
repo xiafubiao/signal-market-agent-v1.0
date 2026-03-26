@@ -1,0 +1,48 @@
+{
+  "name": "signal-trading-agent",
+  "version": "0.2.0",
+  "description": "Unified Signal Trading Agent - Provider & Consumer in one",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "prove": "node src/agent/prove.js",
+    "publish": "node src/agent/publish.js",
+    "browse": "node src/agent/browse.js",
+    "buy": "node src/agent/buy.js",
+    "rate": "node src/agent/rate.js",
+    "listen": "node src/agent/listener.js",
+    "service": "node src/agent/service.js",
+    "db:init": "node scripts/init-db.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.0.0",
+    "@fastify/static": "^6.12.0",
+    "@modelcontextprotocol/sdk": "^1.28.0",
+    "@noble/secp256k1": "^3.0.0",
+    "@primuslabs/zktls-core-sdk": "latest",
+    "@xmtp/xmtp-js": "^13.0.4",
+    "axios": "^1.13.6",
+    "better-sqlite3": "^12.8.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "ecies-geth": "^1.7.6",
+    "fastify": "^4.24.0",
+    "solc": "^0.8.34"
+  },
+  "keywords": [
+    "zkTLS",
+    "signal-trading",
+    "x402",
+    "XMTP",
+    "X-Layer"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.0.6",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "dotenv": "^17.3.1",
+    "ethers": "^6.13.0",
+    "hardhat": "^2.22.0"
+  }
+}
