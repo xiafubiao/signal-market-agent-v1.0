@@ -158,6 +158,16 @@ Supports natural language commands:
 | zkTLSProofStorage | `0x9fe80B4F7905E6E681B60C7e45DBd5aA5Fd3bCE2` |
 | PublicKeyRegistry | `0x12534FDaE9B80F586d816F7e152A10d71188A33D` |
 
+### XLayer Mainnet
+
+| Contract | Address |
+|------|------|
+| AgentRegistry | `0xedb270dc698B8A70F419B33e16884c3d148a3554` |
+| SignalMarket | `0x3baDbeDbec3A4131107C1DA281339CC1e66Cf9C0` |
+| SignalEscrow | `0xe16Eea394347e01A61e596300Ef0A95A15e96a20` |
+| zkTLSProofStorage | `0xE854c6495Ee443a8A1362AdBE5fF3597B84e1AE2` |
+| PublicKeyRegistry | `0xA5eB1A59624b11c3F10DDa039B551ccC7Ec3f044` |
+
 ## ⚠️ Important Notes
 
 1. **Private Key Security**: Never commit `.env` files to Git
